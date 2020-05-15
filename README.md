@@ -1,1 +1,1 @@
-# recommendation_fairness
+Repository for code of the "Improving Fairness in Music Recommendation Prediction" paper.
