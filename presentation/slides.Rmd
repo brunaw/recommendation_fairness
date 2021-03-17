@@ -71,7 +71,7 @@ Where we'll show you how to get your teaching materials online with R Markdown.
 ---
 layout: true
 
-<a class="footer-link" href="https://brunaw.com/recommendation_fairness/slides.html">bit.ly/3qTPQkX</a>
+<a class="footer-link" href="http://brunaw.com/recommendation_fairness/presentation/slides.html">https://bit.ly/2NqYr0O</a>
 
 ---
 
