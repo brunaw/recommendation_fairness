@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cluster-based Quotas for Fairness Improvements in Music Recommendation Systems</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Bruna Wundervald," />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+class: title-slide, center, middle
+
+
+
+
+# Cluster-based Quotas for Fairness Improvements in Music Recommendation Systems
+
+## Bruna Wundervald,
+
+### National University of Ireland, Maynooth
+### March 19th, 2021
+
+&lt;img src="images/player.png" width="300"&gt;
+
+
+
+
+???
+
+Welcome to the webinar on sharing on short notice
+
+Where we'll show you how to get your teaching materials online with R Markdown.
+
+---
+layout: true
+
+&lt;a class="footer-link" href="https://brunaw.com/recommendation_fairness/slides.html"&gt;bit.ly/3qTPQkX&lt;/a&gt;
+
+---
+
+name: clouds
+class: center, middle
+background-image: url(images/sea.jpg)
+background-size: cover
+
+
+
+
+## .big-text[Hello]
+
+
+### Bruna Wundervald
+
+&lt;img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/18500161?s=460&amp;u=34b7f4888b6fe48b3c208beb51c69c146ae050cf&amp;v=4" width="150px"/&gt;
+
+[GitHub: @brunaw](https://github.com/brunaw)  
+[Twitter: @bwundervald](https://twitter.com/bwundervald)  
+[Page: http://brunaw.com/](http://brunaw.com/)
+
+
+---
+class: middle
+
+# Today:
+
+&lt;img src="images/fair.png" width="450" style="float:right"&gt;
+
+
+
+- Algorithm Fairness 
+  
+???
+
+Here's who I know you are...
+
+--
+
+
+- Music recommendation fairness   
+  - Popularity 
+  
+
+
+
+--
+
+
+- Tackling the popularity issue 
+  
+
+
+???
+
+--
+
+- Results 
+  
+
+
+???
+
+--
+
+
+???
+
+
+
+
+---
+class: middle, inverse
+
+# Algorithm Fairness 
+
+---
+class: middle
+
+# Algorithm Fairness 
+
+- An algorithm is said to be *fair* if its results are independent
+of certain **variables**:
+  - Ethnicity, gender, disability, etc 
+  
+- Defining fairness might be very &lt;b&gt; context dependent &lt;/b&gt; 
+  - and it can also be very difficult due to its subjectivity 
+
+- Has recently become a popular/strong area of research: 
+  - More and more privacy &amp; transparency issues
+  - Facebook, Google, etc 
+  - Discrimination laws 
+
+
+---
+class: middle, inverse
+
+# Music recommendation fairness 
+
+---
+class: middle
+
+# Music recommendation fairness 
+
+- In (Kowald, Schedl, and Lex, 2020), the authors 
+demonstrate that many recommendation algorithms are 
+biased towards popular artists 
+
+- In practice, this leads to already popular artists being 
+recommended too many times 
+
+- Unfairness:
+  - To the users, because they `get recommended artists they probably already know`
+  - To the artists, because newer/less popular artists `get less recommended than they deserve`
+
+
+---
+class: middle, inverse
+
+# Tackling the popularity issue
+
+---
+class: middle
+
+## Standard prediction method 
+
+- After a recommendation system is fit, we select the 
+`Top-N` best recommendations for each user and 
+make that the predictions
+
+- Issue:
+  - Leads to high popularity unfairness in some cases
+  
+  
+&gt; New approach: change the way the predictions are
+made such that the popularity distribution is taken
+into account 
+
+---
+class: small, middle
+
+## New prediction method 
+
+1. Define a set of users `\(\mathcal{U}\)`, 
+their music consumption history `\(\mathcal{I}_{\mathcal{U}}\)`,
+the set of artists `\(A_{\mathcal{I}}\)`, and
+their popularity as `\(\boldsymbol{Pop}_{A}\)`
+  
+2.  Assume the existence
+of a hidden variable `\(z_k, k  \in \{1,\dots,K\}\)` 
+  in the artist popularity, 
+assume it's distribution to be a
+Gaussian Mixture and estimate its parameters via the EM algorithm: 
+
+    `$$\mathcal{P}=(\boldsymbol{Pop}_{A_{i}} |\boldsymbol{\theta}) = \sum_{k = 1}^{K} \pi_k \mathcal{N}(\boldsymbol{Pop}_{A_{i}}   | \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k),$$`
+
+3. Adapt the predictions in a way that it
+respects the proportions of each estimated cluster:
+  - Predict artists from each cluster based on
+  `\(k\)` "quotas" sampled from a  `\(\text{Multinomial}(\textbf{m}, \boldsymbol{\theta} \approx (\pi_1,\dots, \pi_{K}))\)`, with m = number of artists to be recommended 
+
+---
+
+&lt;img src="images/algorithm.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle
+
+## Advantages
+  
+- Is not algorithm dependent
+- Does not add any complex steps 
+- Easily adapted to different fairness contexts
+- Stochastic, leading to less bias in the selected
+artists
+
+---
+class: middle
+
+## Data 
+  
+  - A sample of the LFM-1b dataset (listening events from Last.fm), 3000 users separated into three mainstreaminess groups:
+    - low (1000 users), medium (1000 users) and
+high (1000 users)
+
+- Mainstreaminess: overlap between the listening history of a user and 
+the overall listening history of all Last.fm users
+  - `How popular are the artists the user listens to` 
+
+- Total: 1.755.361 user-artist interactions and 352.805  artists
+
+- 80%/20% train and test separation (for each group)
+
+- Popularity: the fraction of users that interacted with each artist 
+(between 0 and 1)
+
+---
+class: middle
+
+## Recommendation Algorithms 
+  
+  
+- `User Item Average`: based on the average listening counts for each user
+- `User KNN`: a K-nearest neighbors based method 
+- `User KNN-Average`: a K-nearest neighbors based method combined
+with the average listening counts for each user
+- `Non-Negative Matrix Factorization (NMF)`: factorizes the user-artist interaction matrix in order to approximate each user's preferences
+
+
+&gt; Goal: to make their predictions more 'fair'
+in popularity terms 
+
+---
+class: middle
+
+## Before (top-n recommendations)
+
+% `\(\Delta\)` GAP:  how much the popularity of the predictions differs from the expected popularity of the artists in the user profiles of the test set
+
+&lt;img src="images/gap_analysis_28.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: middle, inverse
+
+# Results
+
+---
+class: middle 
+
+## Results: cluster distribution 
+
+
+&lt;img src="images/clusters.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+class: middle 
+
+## Results: % `\(\Delta\)` GAP
+
+
+&lt;img src="images/gap_analysis_modif_22.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Results: recommendation frequencies
+
+.panelset[
+.panel[.panel-name[UserItemAvg: Before]
+
+&lt;img src="images/sampl_28_UserItemAvg.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.panel[.panel-name[UserItemAvg: After]
+
+&lt;img src="images/sampl_modif_2_UserItemAvg.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+
+
+---
+class: middle
+
+## Results: recommendation frequencies
+
+.panelset[
+.panel[.panel-name[UserKNN: Before]
+
+&lt;img src="images/sampl_28_UserKNN.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.panel[.panel-name[UserKNN: After]
+
+&lt;img src="images/sampl_modif_2_UserKNN.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+class: middle
+
+## Results: recommendation frequencies
+
+.panelset[
+.panel[.panel-name[UserKNNAvg: Before]
+
+&lt;img src="images/sampl_28_UserKNNAvg.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.panel[.panel-name[UserKNNAvg: After]
+
+&lt;img src="images/sampl_modif_2_UserKNNAvg.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+---
+class: middle
+
+## Results: recommendation frequencies
+
+.panelset[
+.panel[.panel-name[NMF: Before]
+
+&lt;img src="images/sampl_28_NMF.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.panel[.panel-name[NMF: After]
+
+&lt;img src="images/sampl_modif_2_NMF.png" width="60%" style="display: block; margin: auto;" /&gt;
+]
+]
+
+
+---
+class: middle 
+
+## Results: Mean Average Error (MAE) 
+
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="images/mae.png" alt="Average MAE results for the 4 music recommendation systems, with percentual differences in parentheses. For almost all cases, there is an accuracy improvement with the new algorithm" width="95%" /&gt;
+&lt;p class="caption"&gt;Average MAE results for the 4 music recommendation systems, with percentual differences in parentheses. For almost all cases, there is an accuracy improvement with the new algorithm&lt;/p&gt;
+&lt;/div&gt;
+
+---
+class: middle
+
+# Paper
+
+&gt; https://github.com/brunaw/recommendation_fairness
+
+
+&lt;img src="images/paper.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+
+
+
+
+---
+class: middle
+
+# References
+
+&lt;p&gt;&lt;cite&gt;&lt;a id='bib-pap_unfairness'&gt;&lt;/a&gt;&lt;a href="#cite-pap_unfairness"&gt;Kowald, D., M. Schedl, and E. Lex&lt;/a&gt;
+(2020).
+&amp;ldquo;The Unfairness of Popularity Bias in Music Recommendation: A Reproducibility Study&amp;rdquo;.
+In: 
+&lt;em&gt;European Conference on Information Retrieval&lt;/em&gt;.
+Springer.
+, pp. 35&amp;ndash;42.&lt;/cite&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;cite&gt;Wundervald, B.
+(2021).
+&amp;ldquo;Cluster-based quotas for fairness improvements in music recommendation systems&amp;rdquo;.
+In: &lt;em&gt;International Journal of Multimedia Information Retrieval&lt;/em&gt;, pp. 1&amp;ndash;8.&lt;/cite&gt;&lt;/p&gt;
+
+
+---
+background-image: url(images/sea.jpg)
+background-size: cover
+class: center, middle, inverse
+
+## .big-text[Questions?]
+
+---
+
+
+class: bottom, left, inverse
+
+
+&lt;img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/18500161?s=460&amp;u=34b7f4888b6fe48b3c208beb51c69c146ae050cf&amp;v=4" width="150px"/&gt;
+
+## Thank you!
+
+### Find me at...
+
+
+[`GitHub: @brunaw`](https://github.com/brunaw)
+
+[`Twitter: @bwundervald`](https://twitter.com/bwundervald)
+
+[`Page: http://brunaw.com/`](http://brunaw.com/)
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
