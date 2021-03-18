@@ -200,7 +200,7 @@ Gaussian Mixture and estimate its parameters via the EM algorithm:
 3. Adapt the predictions in a way that it
 respects the proportions of each estimated cluster:
   - Predict artists from each cluster based on
-  `\(k\)` "quotas" sampled from a  `\(\text{Multinomial}(\textbf{m}, \boldsymbol{\theta} \approx (\pi_1,\dots, \pi_{K}))\)`, with m = number of artists to be recommended 
+  `\(K\)` "quotas" sampled from a  `\(\text{Multinomial}(\textbf{m}, \boldsymbol{\theta} \approx (\pi_1,\dots, \pi_{K}))\)`, with m = number of artists to be recommended 
 
 ---
 
@@ -232,7 +232,7 @@ the overall listening history of all Last.fm users
 
 - Total: 1.755.361 user-artist interactions and 352.805  artists
 
-- 80%/20% train and test separation (for each group)
+- 80%/20% train and test separation
 
 - Popularity: the fraction of users that interacted with each artist 
 (between 0 and 1)
@@ -240,7 +240,7 @@ the overall listening history of all Last.fm users
 ---
 class: middle
 
-## Recommendation Algorithms 
+## Recommendation lgorithms 
   
   
 - `User Item Average`: based on the average listening counts for each user
@@ -364,7 +364,7 @@ class: middle
 ---
 class: middle 
 
-## Results: Mean Average Error (MAE) 
+## Results: Mean Absolute Error (MAE) 
 
 
 &lt;div class="figure" style="text-align: center"&gt;
